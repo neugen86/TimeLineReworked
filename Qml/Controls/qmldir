@@ -1,0 +1,4 @@
+module Controls
+
+TimeScaleControl 0.1 TimeScaleControl.qml
+TimeLineControl 0.1 TimeLineControl.qml

@@ -1,0 +1,9 @@
+<RCC>
+    <qresource prefix="/">
+        <file>main.qml</file>
+        <file>Qml/qmldir</file>
+        <file>Qml/Controls/qmldir</file>
+        <file>Qml/Controls/TimeScaleControl.qml</file>
+        <file>Qml/Controls/TimeLineControl.qml</file>
+    </qresource>
+</RCC>
