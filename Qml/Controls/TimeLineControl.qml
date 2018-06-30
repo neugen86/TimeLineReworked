@@ -31,16 +31,16 @@ TimeScaleControl {
         }
 
         delegate: Rectangle {
-            x: model.start * 100
+            x: model.start
             y: 10
-            width: model.width * 100
-            height: 30
+            width: model.width
+            height: 50
 
             color: model.color
 
             border {
-                color: "red"
-                width: mouse_area.containsMouse ? 1 : 0
+                color: mouse_area.containsMouse ? "red" : "gray"
+                width: mouse_area.containsMouse ? 2 : 1
             }
 
             Text {

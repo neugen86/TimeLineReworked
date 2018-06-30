@@ -61,36 +61,44 @@ using NamedIntervalList = QList<NamedInterval>;
 
 struct TimeLineItem
 {
-    QRectF rect;
+    struct Segment
+    {
+        double start = 0;
+        double width = 0;
+
+        Segment() = default;
+    };
+
+    Segment segment;
     QColor color;
     QString title;
     QString description;
 
     TimeLineItem() = default;
 
-    TimeLineItem(const QString& title, const QRectF& rect, const QColor& color)
-        : rect(rect)
+    TimeLineItem(const QString& title, const Segment& segment, const QColor& color)
+        : segment(segment)
         , color(color)
         , title(title)
         , description(title)
     {
-        this->rect.setWidth(std::max(rect.width(), MIN_ITEM_WIDTH));
+        this->segment.width = std::max(this->segment.width, MIN_ITEM_WIDTH);
     }
 
-    TimeLineItem(const QString& title, const QString& description, const QRectF& rect, const QColor& color)
-        : TimeLineItem(title, rect, color)
+    TimeLineItem(const QString& title, const QString& description, const Segment& segment, const QColor& color)
+        : TimeLineItem(title, segment, color)
     {
         this->description = description;
     }
 
-    static TimeLineItem single(const QString& title, const QRectF& rect)
+    static TimeLineItem single(const QString& title, const Segment& segment)
     {
-        return TimeLineItem(title, rect, SINGLE_ITEM_COLOR);
+        return TimeLineItem(title, segment, SINGLE_ITEM_COLOR);
     }
 
-    static TimeLineItem group(int count, const QString& description, const QRectF& rect)
+    static TimeLineItem group(int count, const QString& description, const Segment& segment)
     {
-        return TimeLineItem(QString::number(count), description, rect, GROUP_ITEM_COLOR);
+        return TimeLineItem(QString::number(count), description, segment, GROUP_ITEM_COLOR);
     }
 
 };

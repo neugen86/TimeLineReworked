@@ -8,7 +8,8 @@
 
 namespace
 {
-const int TIMER_INTERVAL = 200;
+const int TIMER_INTERVAL = 100;
+const double COLLAPSE_DISTANCE = 50;
 
 } // anonymous namespace
 
@@ -17,36 +18,60 @@ using Watcher = QFutureWatcher<void>;
 TimeLine::TimeLine(QObject* parent)
     : QObject(parent)
 {
-    QObject::connect(&m_resizeTimer, &QTimer::timeout, this, &TimeLine::arrangeItems);
-    QObject::connect(&m_offsetTimer, &QTimer::timeout, this, &TimeLine::updateVisibleItems);
+    QObject::connect(&m_contentTimer, &QTimer::timeout, this, &TimeLine::arrangeItems);
+    QObject::connect(&m_viewportTimer, &QTimer::timeout, this, &TimeLine::updateVisibleItems);
 }
 
 void TimeLine::setup(const TimeInterval& interval, NamedIntervalsProviderPtr provider)
 {
-    m_synchronizer.waitForFinished();
+    resetVisibleItems();
 
-    m_interval = interval;
+    m_synchronizer.waitForFinished();
+    m_synchronizer.clearFutures();
+
+    m_data.interval = interval;
     emit intervalChanged();
 
     loadItems(provider);
 }
 
-void TimeLine::setContentWidth(int value)
+void TimeLine::setContentWidth(double value)
 {
-    m_contentWidth = value;
-    m_resizeTimer.start(TIMER_INTERVAL);
+    if (!qFuzzyCompare(m_data.contentWidth, value))
+    {
+        resetVisibleItems();
+
+        m_data.contentWidth = value;
+        emit contentWidthChanged();
+
+        m_contentTimer.start(TIMER_INTERVAL);
+    }
 }
 
-void TimeLine::setViewportWidth(int value)
+void TimeLine::setViewportWidth(double value)
 {
-    m_viewportWidth = value;
-    m_resizeTimer.start(TIMER_INTERVAL);
+    if (!qFuzzyCompare(m_data.viewportWidth, value))
+    {
+        resetVisibleItems();
+
+        m_data.viewportWidth = value;
+        emit viewportWidthChanged();
+
+        m_viewportTimer.start(TIMER_INTERVAL);
+    }
 }
 
-void TimeLine::setViewportOffset(int value)
+void TimeLine::setViewportOffset(double value)
 {
-    m_viewportOffset = value;
-    m_offsetTimer.start(TIMER_INTERVAL);
+    if (!qFuzzyCompare(m_data.viewportOffset, value))
+    {
+        resetVisibleItems();
+
+        m_data.viewportOffset = value;
+        emit viewportOffsetChanged();
+
+        m_viewportTimer.start(TIMER_INTERVAL);
+    }
 }
 
 void TimeLine::simulate(unsigned itemsCount)
@@ -65,31 +90,35 @@ void TimeLine::setBusy(bool value)
     emit busyChanged();
 }
 
+void TimeLine::resetVisibleItems()
+{
+    m_visibleItems = TimeLineItemList();
+    emit visibleItemsChanged();
+}
+
 void TimeLine::loadItems(NamedIntervalsProviderPtr provider)
 {
     if (m_busy)
         return;
 
     setBusy(true);
-    m_ready = false;
 
     auto watcher = new Watcher();
     QObject::connect(watcher, &Watcher::finished, this, [this, watcher]
     {
         watcher->deleteLater();
 
-        m_ready = true;
-
         setBusy(false);
         arrangeItems();
     });
 
-    auto func = [this](NamedIntervalsProviderPtr provider)
+    auto routine = [this](NamedIntervalsProviderPtr provider)
     {
         m_items = provider->getData();
+        timeline_utils::sort_and_filter(m_data.interval, m_items);
     };
 
-    auto future = QtConcurrent::run(func, provider);
+    auto future = QtConcurrent::run(routine, provider);
 
     m_synchronizer.addFuture(future);
     watcher->setFuture(future);
@@ -97,27 +126,25 @@ void TimeLine::loadItems(NamedIntervalsProviderPtr provider)
 
 void TimeLine::arrangeItems()
 {
-    if (!m_ready || m_busy)
+    if (m_busy)
         return;
 
-    setBusy(true);
+    m_contentTimer.stop();
 
     auto watcher = new Watcher();
     QObject::connect(watcher, &Watcher::finished, this, [this, watcher]
     {
         watcher->deleteLater();
-
-        setBusy(false);
         updateVisibleItems();
     });
 
-    auto func = [this](std::time_t gap)
+    auto routine = [this](std::time_t treshold)
     {
-        m_grouppedIndexes = timeline_utils::group_items(m_items, gap);
+        m_indexes = timeline_utils::group_items(m_items, treshold);
     };
 
-    std::time_t gap = 1.;
-    auto future = QtConcurrent::run(func, gap);
+    const std::time_t treshold = m_data.fromDistance(COLLAPSE_DISTANCE, false);
+    auto future = QtConcurrent::run(routine, treshold);
 
     m_synchronizer.addFuture(future);
     watcher->setFuture(future);
@@ -125,25 +152,26 @@ void TimeLine::arrangeItems()
 
 void TimeLine::updateVisibleItems()
 {
-    if (!m_ready || m_busy)
+    if (m_busy)
         return;
 
-    setBusy(true);
+    m_viewportTimer.stop();
 
     auto watcher = new Watcher();
     QObject::connect(watcher, &Watcher::finished, this, [this, watcher]
     {
         watcher->deleteLater();
 
-        setBusy(false);
+        m_synchronizer.clearFutures();
+        emit visibleItemsChanged();
     });
 
-    auto func = [this]()
+    auto routine = [this]()
     {
-        m_visibleItems.clear();
+        m_visibleItems = std::move(timeline_utils::get_items(m_data, m_items, m_indexes));
     };
 
-    auto future = QtConcurrent::run(func);
+    auto future = QtConcurrent::run(routine);
 
     m_synchronizer.addFuture(future);
     watcher->setFuture(future);

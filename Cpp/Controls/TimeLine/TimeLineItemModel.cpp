@@ -30,10 +30,10 @@ QVariant TimeLineItemModel::data(const QModelIndex& index, int role) const
         return item.color;
 
     case StartRole:
-        return index.row() * 20;
+        return item.segment.start;
 
     case WidthRole:
-        return 15;
+        return item.segment.width;
 
     default:
         return QVariant();

@@ -15,28 +15,24 @@ class TimeLine : public QObject
     Q_OBJECT
 
     bool m_busy = false;
-    bool m_ready = false;
 
-    int m_contentWidth = 0;
-    int m_viewportWidth = 0;
-    int m_viewportOffset = 0;
+    TimeLineData m_data;
 
-    QTimer m_resizeTimer;
-    QTimer m_offsetTimer;
+    QTimer m_contentTimer;
+    QTimer m_viewportTimer;
 
-    TimeInterval m_interval;
     NamedIntervalList m_items;
     TimeLineItemList m_visibleItems;
-    timeline_utils::GrouppedIndexes m_grouppedIndexes;
+    timeline_utils::GrouppedIndexes m_indexes;
 
     QFutureSynchronizer<void> m_synchronizer;
 
     Q_PROPERTY(bool busy READ busy NOTIFY busyChanged)
     Q_PROPERTY(TimeInterval interval READ interval NOTIFY intervalChanged)
     Q_PROPERTY(TimeLineItemList visibleItems READ visibleItems NOTIFY visibleItemsChanged)
-    Q_PROPERTY(int contentWidth READ contentWidth WRITE setContentWidth NOTIFY contentWidthChanged)
-    Q_PROPERTY(int viewportWidth READ viewportWidth WRITE setViewportWidth NOTIFY viewportWidthChanged)
-    Q_PROPERTY(int viewportOffset READ viewportOffset WRITE setViewportOffset NOTIFY viewportOffsetChanged)
+    Q_PROPERTY(double contentWidth READ contentWidth WRITE setContentWidth NOTIFY contentWidthChanged)
+    Q_PROPERTY(double viewportWidth READ viewportWidth WRITE setViewportWidth NOTIFY viewportWidthChanged)
+    Q_PROPERTY(double viewportOffset READ viewportOffset WRITE setViewportOffset NOTIFY viewportOffsetChanged)
 
 public:
     TimeLine(QObject* parent = nullptr);
@@ -46,24 +42,25 @@ public:
 public:
     bool busy() const { return m_busy; }
 
-    TimeInterval interval() const { return m_interval; }
+    TimeInterval interval() const { return m_data.interval; }
 
     TimeLineItemList visibleItems() const { return m_visibleItems; }
 
-    int contentWidth() const { return m_contentWidth; }
-    void setContentWidth(int value);
+    double contentWidth() const { return m_data.contentWidth; }
+    void setContentWidth(double value);
 
-    int viewportWidth() const { return m_viewportWidth; }
-    void setViewportWidth(int value);
+    double viewportWidth() const { return m_data.viewportWidth; }
+    void setViewportWidth(double value);
 
-    int viewportOffset() const { return m_viewportOffset; }
-    void setViewportOffset(int value);
+    double viewportOffset() const { return m_data.viewportOffset; }
+    void setViewportOffset(double value);
 
 public:
     Q_INVOKABLE void simulate(unsigned itemsCount);
 
 private:
     void setBusy(bool value);
+    void resetVisibleItems();
 
     void loadItems(NamedIntervalsProviderPtr provider);
     void arrangeItems();
