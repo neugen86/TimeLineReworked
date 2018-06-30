@@ -33,7 +33,7 @@ TimeLineItem CreateItem(const TimeLineData& data, const NamedInterval& interval)
 TimeLineItem CreateItem(const TimeLineData& data, const NamedIntervalList& items,
                         const timeline_utils::IndexGroupBounds& bounds)
 {
-    const int count = (bounds.second - bounds.first);
+    const int count = (bounds.second - bounds.first + 1);
 
     QStringList description;
     {
@@ -118,7 +118,7 @@ timeline_utils::GrouppedIndexes timeline_utils::group_items(const NamedIntervalL
     return result;
 }
 
-TimeLineItemList timeline_utils::get_items(const TimeLineData& data,
+TimeLineItemList timeline_utils::get_visible(const TimeLineData& data,
                                            const NamedIntervalList& items,
                                            const GrouppedIndexes& indexes)
 {
@@ -126,6 +126,8 @@ TimeLineItemList timeline_utils::get_items(const TimeLineData& data,
         return TimeLineItemList();
 
     TimeLineItemList result;
+
+    IndexGroupBounds lastOverlapped = std::make_pair(-1, -1);
 
     const std::time_t viewportFrom = data.fromDistance(data.viewportOffset);
     const std::time_t viewportTill = data.fromDistance(data.viewportOffset + data.viewportWidth);
@@ -142,9 +144,22 @@ TimeLineItemList timeline_utils::get_items(const TimeLineData& data,
         if (last.till() <= viewportFrom)
             continue;
 
+        if ((first.from <= viewportFrom) && (last.till() >= viewportTill))
+        {
+            lastOverlapped = bounds;
+            continue;
+        }
+
         result.push_back((bounds.first != bounds.second)
                          ? CreateItem(data, items, bounds)
                          : CreateItem(data, first));
+    }
+
+    if (lastOverlapped.first >= 0)
+    {
+        result.push_front((lastOverlapped.first != lastOverlapped.second)
+                          ? CreateItem(data, items, lastOverlapped)
+                          : CreateItem(data, items[lastOverlapped.first]));
     }
 
     return result;

@@ -26,6 +26,6 @@ using GrouppedIndexes = std::vector<IndexGroupBounds>;
 
 void sort_and_filter(const TimeInterval& interval, NamedIntervalList& items);
 GrouppedIndexes group_items(const NamedIntervalList& items, std::time_t treshold);
-TimeLineItemList get_items(const TimeLineData& data, const NamedIntervalList& items, const GrouppedIndexes& groups);
+TimeLineItemList get_visible(const TimeLineData& data, const NamedIntervalList& items, const GrouppedIndexes& groups);
 
 } // timeline_utils

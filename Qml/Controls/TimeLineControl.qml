@@ -32,19 +32,25 @@ TimeScaleControl {
 
         delegate: Rectangle {
             x: model.start
-            y: 10
             width: model.width
-            height: 50
+
+            y: 10 - (hovered ? 2 : 0)
+            height: 50 + (hovered ? 4 : 0)
+
+            border {
+                color: hovered ? "red" : "gray"
+                width: hovered ? 2 : 1
+            }
 
             color: model.color
 
-            border {
-                color: mouse_area.containsMouse ? "red" : "gray"
-                width: mouse_area.containsMouse ? 2 : 1
-            }
+            property alias hovered: mouse_area.containsMouse
 
             Text {
                 anchors.fill: parent
+
+                anchors.topMargin: 10
+                anchors.leftMargin: 10
 
                 text: model.title
                 elide: Qt.ElideRight
@@ -57,8 +63,8 @@ TimeScaleControl {
                 hoverEnabled: true
             }
 
-            ToolTip.visible: mouse_area.containsMouse
             ToolTip.text: model.description
+            ToolTip.visible: hovered
         }
     }
 

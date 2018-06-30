@@ -53,7 +53,7 @@ void TimeScaleModel::zoomOut()
 
 void TimeScaleModel::resetZoom()
 {
-    fillWidth(m_minWidth);
+    fillWidth(0);
 }
 
 QVariant TimeScaleModel::data(const QModelIndex& index, int role) const
@@ -80,43 +80,43 @@ QHash<int, QByteArray> TimeScaleModel::roleNames() const
 
 void TimeScaleModel::fillWidth(double value)
 {
-//    beginResetModel();
-
-//    m_tileInfo = ScaleTileInfo::create(value, m_interval);
-
-//    if (width() < m_minWidth)
-//        m_tileInfo = ScaleTileInfo::create(m_minWidth, m_interval);
-
-//    endResetModel();
-
-    const double prevWidth = width();
-    const double prevCount = m_factory.count;
+    beginResetModel();
 
     m_factory = ScaleTilesFactory::create(value, m_interval);
-    double curWidth = width();
 
-    if (curWidth < m_minWidth)
-    {
+    if (width() < m_minWidth)
         m_factory = ScaleTilesFactory::create(m_minWidth, m_interval);
-        curWidth = m_minWidth;
-    }
 
-    const QModelIndex& topIndex = index(0);
+    endResetModel();
 
-    if (prevWidth < curWidth)
-    {
-        emit dataChanged(topIndex, index(prevCount - 1));
+//    const double prevWidth = width();
+//    const double prevCount = m_factory.count;
 
-        beginInsertRows(QModelIndex(), prevCount, (m_factory.count - 1));
-        endInsertRows();
-    }
-    else if (prevWidth > curWidth)
-    {
-        emit dataChanged(topIndex, index(prevCount - 1));
+//    m_factory = ScaleTilesFactory::create(value, m_interval);
+//    double curWidth = width();
 
-        beginRemoveRows(QModelIndex(), m_factory.count, (prevCount - 1));
-        endRemoveRows();
-    }
+//    if (curWidth < m_minWidth)
+//    {
+//        m_factory = ScaleTilesFactory::create(m_minWidth, m_interval);
+//        curWidth = m_minWidth;
+//    }
+
+//    const QModelIndex& topIndex = index(0);
+
+//    if (prevWidth < curWidth)
+//    {
+//        emit dataChanged(topIndex, index(prevCount - 1));
+
+//        beginInsertRows(QModelIndex(), prevCount, (m_factory.count - 1));
+//        endInsertRows();
+//    }
+//    else if (prevWidth > curWidth)
+//    {
+//        emit dataChanged(topIndex, index(prevCount - 1));
+
+//        beginRemoveRows(QModelIndex(), m_factory.count, (prevCount - 1));
+//        endRemoveRows();
+//    }
 
     emit sizeChanged();
 }

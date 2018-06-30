@@ -9,7 +9,17 @@
 namespace
 {
 const int TIMER_INTERVAL = 100;
-const double COLLAPSE_DISTANCE = 50;
+const double COLLAPSE_DISTANCE = 100;
+
+TimeInterval Adjust(const TimeInterval& interval)
+{
+    const auto group = time_utils::group(interval.duration);
+
+    const std::time_t from = time_utils::before(interval.from, group);
+    const std::time_t to = time_utils::after(interval.till(), group);
+
+    return TimeInterval(from, to - from);
+}
 
 } // anonymous namespace
 
@@ -29,7 +39,7 @@ void TimeLine::setup(const TimeInterval& interval, NamedIntervalsProviderPtr pro
     m_synchronizer.waitForFinished();
     m_synchronizer.clearFutures();
 
-    m_data.interval = interval;
+    m_data.interval = Adjust(interval);
     emit intervalChanged();
 
     loadItems(provider);
@@ -168,7 +178,7 @@ void TimeLine::updateVisibleItems()
 
     auto routine = [this]()
     {
-        m_visibleItems = std::move(timeline_utils::get_items(m_data, m_items, m_indexes));
+        m_visibleItems = std::move(timeline_utils::get_visible(m_data, m_items, m_indexes));
     };
 
     auto future = QtConcurrent::run(routine);
