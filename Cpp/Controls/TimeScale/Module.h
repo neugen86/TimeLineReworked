@@ -1,7 +1,7 @@
 #include <QtQml/QQmlEngine>
 
-#include "ScaleItem.h"
-#include "ScaleModel.h"
+#include "TimeScaleItem.h"
+#include "TimeScaleModel.h"
 
 namespace ControlsModule
 {
@@ -9,8 +9,8 @@ namespace TimeScaleModule
 {
 void registerQmlTypes()
 {
-    qmlRegisterType<ScaleItem>("Cpp.Controls.TimeScale", 0, 1, "ScaleItem");
-    qmlRegisterType<ScaleModel>("Cpp.Controls.TimeScale", 0, 1, "ScaleModel");
+    qmlRegisterType<TimeScaleItem>("Cpp.Controls.TimeScale", 0, 1, "TimeScaleItem");
+    qmlRegisterType<TimeScaleModel>("Cpp.Controls.TimeScale", 0, 1, "TimeScaleModel");
 }
 
 } // namespace TimeScaleModule

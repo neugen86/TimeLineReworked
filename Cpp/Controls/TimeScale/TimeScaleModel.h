@@ -4,7 +4,7 @@
 
 #include "ScaleTilesFactory.h"
 
-class ScaleModel : public QAbstractListModel
+class TimeScaleModel : public QAbstractListModel
 {
     Q_OBJECT
 
@@ -19,7 +19,7 @@ class ScaleModel : public QAbstractListModel
     Q_PROPERTY(double minWidth READ minWidth WRITE setMinWidth NOTIFY minWidthChanged)
 
 public:
-    ScaleModel(QObject* parent = nullptr);
+    TimeScaleModel(QObject* parent = nullptr);
 
 public: // properties
     double width() const;

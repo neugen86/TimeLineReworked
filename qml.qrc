@@ -5,5 +5,7 @@
         <file>Qml/Controls/qmldir</file>
         <file>Qml/Controls/TimeScaleControl.qml</file>
         <file>Qml/Controls/TimeLineControl.qml</file>
+        <file>Qml/Controls/ValueInput.qml</file>
+        <file>Qml/Controls/ZoomPane.qml</file>
     </qresource>
 </RCC>

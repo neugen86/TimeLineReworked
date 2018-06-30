@@ -6,24 +6,27 @@ import Cpp.Controls.TimeScale 0.1
 Item {
     id: control
 
+    height: list.height
+
+    property alias offset: list.contentX
+    property alias contentWidth: list.contentWidth
+
     ListView {
         id: list
 
         width: control.width
         height: scale_model.height
 
-        anchors.centerIn: control
-
         orientation: Qt.Horizontal
         boundsBehavior: Flickable.StopAtBounds
         flickableDirection: Flickable.HorizontalFlick
 
-        model: ScaleModel {
+        model: TimeScaleModel {
             id: scale_model
             minWidth: list.width
         }
 
-        delegate: ScaleItem {
+        delegate: TimeScaleItem {
             data: image
         }
 
@@ -62,4 +65,5 @@ Item {
     function zoomIn() { scale_model.zoomIn() }
     function zoomOut() { scale_model.zoomOut() }
     function resetZoom() { scale_model.resetZoom() }
+    function setInterval(value) { scale_model.setInterval(value) }
 }

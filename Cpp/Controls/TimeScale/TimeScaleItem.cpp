@@ -1,13 +1,13 @@
-#include "ScaleItem.h"
+#include "TimeScaleItem.h"
 
 #include <QPainter>
 
-ScaleItem::ScaleItem(QQuickItem* parent)
+TimeScaleItem::TimeScaleItem(QQuickItem* parent)
     : QQuickPaintedItem(parent)
 {
 }
 
-void ScaleItem::setData(const QImage& value)
+void TimeScaleItem::setData(const QImage& value)
 {
     m_data = value;
     emit dataChanged();
@@ -15,7 +15,7 @@ void ScaleItem::setData(const QImage& value)
     setSize(value.size());
 }
 
-void ScaleItem::paint(QPainter* painter)
+void TimeScaleItem::paint(QPainter* painter)
 {
     painter->drawImage(QPoint(), m_data);
 }

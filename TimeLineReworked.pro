@@ -26,19 +26,28 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 HEADERS += \
+    Cpp/Backend.h \
     Cpp/Controls/Common.h \
     Cpp/Controls/Module.h \
     Cpp/Controls/TimeUtils.h \
-    Cpp/Controls/TimeLine/Module.h \
     Cpp/Controls/TimeScale/Module.h \
-    Cpp/Controls/TimeScale/ScaleItem.h \
-    Cpp/Controls/TimeScale/ScaleModel.h \
-    Cpp/Controls/TimeScale/ScaleTilesFactory.h
+    Cpp/Controls/TimeScale/TimeScaleItem.h \
+    Cpp/Controls/TimeScale/TimeScaleModel.h \
+    Cpp/Controls/TimeScale/ScaleTilesFactory.h \
+    Cpp/Controls/TimeLine/Module.h \
+    Cpp/Controls/TimeLine/TimeLine.h \
+    Cpp/Controls/TimeLine/TimeLineItemModel.h \
+    Cpp/Controls/TimeLine/TimeLineUtils.h
+
 
 SOURCES += \
     main.cpp \
+    Cpp/Backend.cpp \
     Cpp/Controls/TimeUtils.cpp \
-    Cpp/Controls/TimeScale/ScaleItem.cpp \
-    Cpp/Controls/TimeScale/ScaleModel.cpp \
-    Cpp/Controls/TimeScale/ScaleTilesFactory.cpp
+    Cpp/Controls/TimeScale/TimeScaleItem.cpp \
+    Cpp/Controls/TimeScale/TimeScaleModel.cpp \
+    Cpp/Controls/TimeScale/ScaleTilesFactory.cpp \
+    Cpp/Controls/TimeLine/TimeLine.cpp \
+    Cpp/Controls/TimeLine/TimeLineItemModel.cpp \
+    Cpp/Controls/TimeLine/TimeLineUtils.cpp
 

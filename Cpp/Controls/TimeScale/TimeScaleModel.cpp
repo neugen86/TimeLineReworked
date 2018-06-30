@@ -1,4 +1,4 @@
-#include "ScaleModel.h"
+#include "TimeScaleModel.h"
 
 namespace
 {
@@ -6,23 +6,23 @@ const double ZOOM_RATIO = 3./2;
 
 } // anonymous namespace
 
-ScaleModel::ScaleModel(QObject* parent)
+TimeScaleModel::TimeScaleModel(QObject* parent)
     : QAbstractListModel(parent)
 {
     setInterval(TimeInterval(0, time_utils::duration_ms(time_utils::one_day)));
 }
 
-double ScaleModel::width() const
+double TimeScaleModel::width() const
 {
     return (m_factory.size.width() * m_factory.count);
 }
 
-double ScaleModel::height() const
+double TimeScaleModel::height() const
 {
     return m_factory.size.height();
 }
 
-void ScaleModel::setMinWidth(double value)
+void TimeScaleModel::setMinWidth(double value)
 {
     m_minWidth = std::max(0., value);
     emit minWidthChanged();
@@ -31,7 +31,7 @@ void ScaleModel::setMinWidth(double value)
         fillWidth(m_minWidth);
 }
 
-void ScaleModel::setInterval(const TimeInterval& interval)
+void TimeScaleModel::setInterval(const TimeInterval& interval)
 {
     beginResetModel();
 
@@ -41,22 +41,22 @@ void ScaleModel::setInterval(const TimeInterval& interval)
     endResetModel();
 }
 
-void ScaleModel::zoomIn()
+void TimeScaleModel::zoomIn()
 {
     fillWidth(width() * ZOOM_RATIO);
 }
 
-void ScaleModel::zoomOut()
+void TimeScaleModel::zoomOut()
 {
     fillWidth(width() / ZOOM_RATIO);
 }
 
-void ScaleModel::resetZoom()
+void TimeScaleModel::resetZoom()
 {
     fillWidth(m_minWidth);
 }
 
-QVariant ScaleModel::data(const QModelIndex& index, int role) const
+QVariant TimeScaleModel::data(const QModelIndex& index, int role) const
 {
     switch (role)
     {
@@ -68,17 +68,17 @@ QVariant ScaleModel::data(const QModelIndex& index, int role) const
     }
 }
 
-int ScaleModel::rowCount(const QModelIndex&) const
+int TimeScaleModel::rowCount(const QModelIndex&) const
 {
     return m_factory.count;
 }
 
-QHash<int, QByteArray> ScaleModel::roleNames() const
+QHash<int, QByteArray> TimeScaleModel::roleNames() const
 {
     return { { ImageRole, "image" } };
 }
 
-void ScaleModel::fillWidth(double value)
+void TimeScaleModel::fillWidth(double value)
 {
 //    beginResetModel();
 

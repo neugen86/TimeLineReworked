@@ -5,7 +5,7 @@
 
 #include "TimeUtils.h"
 
-const double MIN_ITEM_WIDTH = 5;
+const double MIN_ITEM_WIDTH = 3;
 
 const QColor SINGLE_ITEM_COLOR(Qt::cyan);
 const QColor GROUP_ITEM_COLOR(Qt::green);
@@ -17,14 +17,6 @@ public:
     virtual ~IDataProvider() {}
     virtual T getData() = 0;
 
-};
-
-template <typename T>
-class IDataConsumer
-{
-public:
-    virtual ~IDataConsumer() {}
-    virtual void setData(T&& data) = 0;
 };
 
 struct TimeInterval

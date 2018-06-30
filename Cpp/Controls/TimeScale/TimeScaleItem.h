@@ -3,7 +3,7 @@
 #include <QImage>
 #include <QQuickPaintedItem>
 
-class ScaleItem : public QQuickPaintedItem
+class TimeScaleItem : public QQuickPaintedItem
 {
     Q_OBJECT
 
@@ -12,7 +12,7 @@ class ScaleItem : public QQuickPaintedItem
     Q_PROPERTY(QImage data READ data WRITE setData NOTIFY dataChanged)
 
 public:
-    ScaleItem(QQuickItem* parent = nullptr);
+    TimeScaleItem(QQuickItem* parent = nullptr);
 
 public: // properties
     const QImage& data() const { return m_data; }
