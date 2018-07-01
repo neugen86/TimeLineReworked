@@ -10,7 +10,7 @@ TimeScaleControl {
 
     BusyIndicator {
         anchors.fill: scale
-        visible: time_line.busy
+        visible: time_line.loading
     }
 
     TimeLine {

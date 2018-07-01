@@ -6,12 +6,12 @@ namespace
 {
 const int MAX_GROUP_ITEMS = 5;
 
-TimeLineItem::Segment CreateSegment(const TimeLineData& data, const TimeInterval& interval)
+TimeLineItem::Segment CreateSegment(const TimeLineInfo& timeline, const TimeInterval& interval)
 {
     TimeLineItem::Segment segment;
 
-    segment.start = (data.fromTime(interval.from) - data.viewportOffset);
-    segment.width = data.fromTime((interval.till() - interval.from), false);
+    segment.start = (timeline.fromTime(interval.from) - timeline.viewportOffset);
+    segment.width = timeline.fromTime((interval.till() - interval.from), false);
 
     if (segment.start < 0)
     {
@@ -19,18 +19,18 @@ TimeLineItem::Segment CreateSegment(const TimeLineData& data, const TimeInterval
         segment.start = 0;
     }
 
-    if ((segment.start + segment.width) > data.viewportWidth)
-        segment.width = (data.viewportWidth - segment.start);
+    if ((segment.start + segment.width) > timeline.viewportWidth)
+        segment.width = (timeline.viewportWidth - segment.start);
 
     return segment;
 }
 
-TimeLineItem CreateItem(const TimeLineData& data, const NamedInterval& interval)
+TimeLineItem CreateItem(const TimeLineInfo& timeline, const NamedInterval& interval)
 {
-    return TimeLineItem::single(interval.title, CreateSegment(data, interval));
+    return TimeLineItem::single(interval.title, CreateSegment(timeline, interval));
 }
 
-TimeLineItem CreateItem(const TimeLineData& data, const NamedIntervalList& items,
+TimeLineItem CreateItem(const TimeLineInfo& timeline, const NamedIntervalList& items,
                         const timeline_utils::IndexGroupBounds& bounds)
 {
     const int count = (bounds.second - bounds.first + 1);
@@ -53,18 +53,18 @@ TimeLineItem CreateItem(const TimeLineData& data, const NamedIntervalList& items
 
     const TimeInterval interval(from, (till - from));
 
-    return TimeLineItem::group(count, description.join("\n"), CreateSegment(data, interval));
+    return TimeLineItem::group(count, description.join("\n"), CreateSegment(timeline, interval));
 }
 
 } // anonymous namespace
 
-std::time_t TimeLineData::fromDistance(double distance, bool relative) const
+std::time_t TimeLineInfo::fromDistance(double distance, bool relative) const
 {
     const std::time_t add = (relative ? interval.from : 0);
     return (add + (distance * interval.duration/ contentWidth));
 }
 
-double TimeLineData::fromTime(std::time_t time, bool relative) const
+double TimeLineInfo::fromTime(std::time_t time, bool relative) const
 {
     const std::time_t add = (relative ? interval.from : 0);
     return (contentWidth * (time - add) / interval.duration);
@@ -89,7 +89,8 @@ void timeline_utils::sort_and_filter(const TimeInterval& interval, NamedInterval
     }
 }
 
-timeline_utils::GrouppedIndexes timeline_utils::group_items(const NamedIntervalList& items, std::time_t treshold)
+timeline_utils::GrouppedIndexes timeline_utils::group_items(const NamedIntervalList& items,
+                                                            std::time_t treshold)
 {
     if (items.empty())
         return GrouppedIndexes();
@@ -118,9 +119,9 @@ timeline_utils::GrouppedIndexes timeline_utils::group_items(const NamedIntervalL
     return result;
 }
 
-TimeLineItemList timeline_utils::get_visible(const TimeLineData& data,
-                                           const NamedIntervalList& items,
-                                           const GrouppedIndexes& indexes)
+TimeLineItemList timeline_utils::get_visible_items(const TimeLineInfo& timeline,
+                                                   const NamedIntervalList& items,
+                                                   const GrouppedIndexes& indexes)
 {
     if (items.empty() || indexes.empty())
         return TimeLineItemList();
@@ -129,8 +130,8 @@ TimeLineItemList timeline_utils::get_visible(const TimeLineData& data,
 
     IndexGroupBounds lastOverlapped = std::make_pair(-1, -1);
 
-    const std::time_t viewportFrom = data.fromDistance(data.viewportOffset);
-    const std::time_t viewportTill = data.fromDistance(data.viewportOffset + data.viewportWidth);
+    const std::time_t viewportFrom = timeline.fromDistance(timeline.viewportOffset);
+    const std::time_t viewportTill = timeline.fromDistance(timeline.viewportOffset + timeline.viewportWidth);
 
     for (auto& bounds : indexes)
     {
@@ -151,15 +152,15 @@ TimeLineItemList timeline_utils::get_visible(const TimeLineData& data,
         }
 
         result.push_back((bounds.first != bounds.second)
-                         ? CreateItem(data, items, bounds)
-                         : CreateItem(data, first));
+                         ? CreateItem(timeline, items, bounds)
+                         : CreateItem(timeline, first));
     }
 
     if (lastOverlapped.first >= 0)
     {
         result.push_front((lastOverlapped.first != lastOverlapped.second)
-                          ? CreateItem(data, items, lastOverlapped)
-                          : CreateItem(data, items[lastOverlapped.first]));
+                          ? CreateItem(timeline, items, lastOverlapped)
+                          : CreateItem(timeline, items[lastOverlapped.first]));
     }
 
     return result;
