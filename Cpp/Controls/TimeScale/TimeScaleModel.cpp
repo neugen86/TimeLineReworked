@@ -89,34 +89,5 @@ void TimeScaleModel::fillWidth(double value)
 
     endResetModel();
 
-//    const double prevWidth = width();
-//    const double prevCount = m_factory.count;
-
-//    m_factory = ScaleTilesFactory::create(value, m_interval);
-//    double curWidth = width();
-
-//    if (curWidth < m_minWidth)
-//    {
-//        m_factory = ScaleTilesFactory::create(m_minWidth, m_interval);
-//        curWidth = m_minWidth;
-//    }
-
-//    const QModelIndex& topIndex = index(0);
-
-//    if (prevWidth < curWidth)
-//    {
-//        emit dataChanged(topIndex, index(prevCount - 1));
-
-//        beginInsertRows(QModelIndex(), prevCount, (m_factory.count - 1));
-//        endInsertRows();
-//    }
-//    else if (prevWidth > curWidth)
-//    {
-//        emit dataChanged(topIndex, index(prevCount - 1));
-
-//        beginRemoveRows(QModelIndex(), m_factory.count, (prevCount - 1));
-//        endRemoveRows();
-//    }
-
     emit sizeChanged();
 }
