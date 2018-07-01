@@ -4,17 +4,23 @@ import QtQuick.Controls 2.2
 import Cpp.Controls.TimeScale 0.1
 
 Item {
-    id: control
+    id: item
 
     height: list.height
 
-    property alias offset: list.contentX
-    property alias contentWidth: list.contentWidth
+    property real contentX: controller.offset
+    property alias contentWidth: controller.scaleWidth
+
+    function zoomIn() { controller.zoomIn() }
+    function zoomOut() { controller.zoomOut() }
+    function resetZoom() { scale_model.resetZoom() }
+
+    function setInterval(value) { scale_model.setInterval(value) }
 
     ListView {
         id: list
 
-        width: control.width
+        width: item.width
         height: scale_model.height
 
         orientation: Qt.Horizontal
@@ -23,7 +29,12 @@ Item {
 
         model: TimeScaleModel {
             id: scale_model
+
             minWidth: list.width
+
+            onWidthChanged: {
+                controller.setWidth(width)
+            }
         }
 
         delegate: TimeScaleItem {
@@ -34,13 +45,14 @@ Item {
             anchors.fill: list
 
             onWheel: {
+                var pos = wheel.x
                 var delta = wheel.angleDelta.y
 
                 if (delta > 0) {
-                    zoomIn()
+                    controller.zoomIn(pos)
                 }
                 else if (delta < 0) {
-                    zoomOut()
+                    controller.zoomOut(pos)
                 }
             }
         }
@@ -60,10 +72,61 @@ Item {
 
             visible: list.count
         }
+
+        onContentXChanged: {
+            controller.setOffset(list.contentX)
+        }
     }
 
-    function zoomIn() { scale_model.zoomIn() }
-    function zoomOut() { scale_model.zoomOut() }
-    function resetZoom() { scale_model.resetZoom() }
-    function setInterval(value) { scale_model.setInterval(value) }
+    QtObject {
+        id: controller
+
+        property real offset: 1
+        property real zoomCenter: 0
+        property real scaleWidth: 0
+        property bool offsetRestoring: false
+
+        function setZoomCenter(center) {
+            zoomCenter = (center !== undefined) ? center : (item.width / 2)
+        }
+
+        function setWidth(value) {
+            var newOffset = offset
+
+            if (offsetRestoring) {
+                var prevPos = (offset + zoomCenter)
+                var curPos = (prevPos * value / scaleWidth)
+
+                newOffset = (curPos - zoomCenter)
+                var maxOffset = (value - item.width);
+
+                newOffset = Math.max(0, Math.min(maxOffset, newOffset));
+
+                list.contentX = newOffset
+
+                offsetRestoring = false
+            }
+
+            scaleWidth = value
+            offset = newOffset
+        }
+
+        function setOffset(value) {
+            if (!offsetRestoring) {
+                offset = value
+            }
+        }
+
+        function zoomIn(center) {
+            offsetRestoring = true
+            setZoomCenter(center)
+            scale_model.zoomIn()
+        }
+
+        function zoomOut(center) {
+            offsetRestoring = true
+            setZoomCenter(center)
+            scale_model.zoomOut()
+        }
+    }
 }

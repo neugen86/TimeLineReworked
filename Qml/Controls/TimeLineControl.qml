@@ -17,7 +17,7 @@ TimeScaleControl {
         id: time_line
 
         viewportWidth: scale.width
-        viewportOffset: scale.offset
+        viewportOffset: scale.contentX
         contentWidth: scale.contentWidth
 
         onIntervalChanged: {
